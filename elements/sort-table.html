@@ -1,0 +1,290 @@
+<link rel="import" href="../js/vendor/polymer.html">
+<script src="../js/vendor/underscore.js"></script>
+<polymer-element name="sort-table" attributes="fields values pageCount displayBounds page prevPage nextPage addRecord submit">
+<template>  
+  <style>
+  /* Styles combined from Normalize and Bootstrap with custom styles added */  
+  html {
+    font-family:sans-serif;
+    -ms-text-size-adjust:100%;
+    -webkit-text-size-adjust:100%;
+    color:#222;
+    font-size:1em;
+    line-height:1.4
+  }
+
+  body {
+    margin:0
+  }
+
+  nav {
+    display:block;
+    text-align:center
+  }
+
+  nav li {
+    display:inline-block
+  }
+
+  #nav li a:hover {
+    color:#fff;
+    background-color:#000
+  }
+
+  template {
+    display:none
+  }
+
+  a {
+    background-color:transparent
+  }
+
+  /* Inputs */
+  input {
+    color:inherit;
+    font:inherit;
+    margin:0;
+    line-height:normal
+  }
+
+  input[type="submit"] {
+    -webkit-appearance:button;
+    -moz-appearance:button;
+    cursor:pointer
+  }
+
+  button::-moz-focus-inner,input::-moz-focus-inner {
+    padding:0;
+    border:0
+  }
+
+  button::-moz-focus-inner,input::-moz-focus-inner {
+    border:0;
+    padding:0
+  }
+
+  ::-moz-selection {
+    background:#b3d4fc;
+    text-shadow:none
+  }
+
+  ::selection {
+    background:#b3d4fc;
+    text-shadow:none
+  }
+
+  /* Table */
+  table {
+    border-collapse:separate;
+    border-spacing:0;
+    border-radius:4px;
+    -moz-border-radius:4px;
+    background-color:transparent
+  }
+
+  td,th {
+    padding:0
+  }
+
+  th {
+    text-align:left
+  }
+
+  .table {
+    width:100%;
+    max-width:100%;
+    margin-bottom:2.5rem
+  }
+
+  .table > tbody > tr > th,.table > tbody > tr > td {
+    padding:8px;
+    line-height:1.42857143;
+    vertical-align:top;
+    border-top:1px solid #ddd
+  }
+
+  .table-bordered {
+    border:1px solid #ddd
+  }
+
+  .table-bordered > tbody > tr > th,.table-bordered > tbody > tr > td {
+    border:1px solid #ddd
+  }
+
+  .table-responsive {
+    min-height:.01%;
+    overflow-x:auto
+  }
+
+  @media screen and (max-width: 767px) {
+  .table-responsive {
+    width:100%;
+    margin-bottom:15px;
+    overflow-y:hidden;
+    -ms-overflow-style:-ms-autohiding-scrollbar;
+    border:1px solid #ddd
+  }
+  }
+
+  .form-control::-moz-placeholder {
+    color:#999;
+    opacity:1
+  }
+
+  .form-control:-ms-input-placeholder {
+    color:#999
+  }
+
+  /* Page Nav Controls */
+  .pagination {
+    display:block;
+    padding-left:0;
+    margin:0 auto;
+    border-radius:4px
+  }
+
+  .pagination > li {
+    display:inline
+  }
+
+  .pagination > li > a {
+    position:relative;
+    float:left;
+    padding:6px 12px;
+    margin-left:-1px;
+    line-height:1.42857143;
+    color:#337ab7;
+    text-decoration:none;
+    background-color:#fff;
+    border:1px solid #ddd
+  }
+
+  .pagination > li:first-child > a {
+    margin-left:0;
+    border-top-left-radius:4px;
+    border-bottom-left-radius:4px
+  }
+
+  .pagination > li:last-child > a {
+    border-top-right-radius:4px;
+    border-bottom-right-radius:4px
+  }
+
+  .pagination > li > a:hover,.pagination > li > a:focus {
+    color:#23527c;
+    background-color:#eee;
+    border-color:#ddd
+  }
+
+  /* */
+  /* Custom Classes */
+  .table-container {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+    width:80%;
+    padding:2rem 0 0;
+    position:relative;
+    margin:0 auto
+  }
+
+  .add-val {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+    width:40%;
+    padding:2rem 0 1rem;
+    position:relative;
+    margin:0 auto;
+    border:1px solid #ddd;
+    border-radius:4px
+  }
+
+  .addval-form {
+    width:70%;
+    margin:0 auto;
+    padding:.75rem 0 1.5rem
+  }
+
+  .addval-form input {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+    border:1px solid #ddd;
+    border-radius:4px;
+    height:2rem;
+    margin:.25rem;
+    width:100%
+  }
+
+  .addval-form input[type="submit"] {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box;
+    width:100%
+  }
+
+  .page-nav {
+    width:50%;
+    padding:2rem 0 1rem;
+    margin:2rem auto
+  }
+
+  .pagination {
+    margin:0 auto;
+    padding:0;
+    display:inline-block
+  }
+  </style>
+  <div class="table-container">
+    <table class="table table-bordered table-responsive">
+      <tr id="tableHeaders">
+        <template repeat="{{field, i in fields}}">
+          <th id="{{field.id}}" on-click="{{sortValues}}" data-sort="{{i}}">{{field.label}}</th>
+        </template>
+      </tr>
+      
+      <template repeat="{{value in values}}">
+        <tr>
+          <template repeat="{{item in value}}">
+            <td>{{item}}</td>
+          </template>
+        </tr>
+      </template>
+    </table>
+
+  
+    <div class="add-val">
+      <form class="addval-form" id="addValueForm" on-submit="{{saveStoreValue}}">
+        <template repeat="{{field, i in fields}}">
+          <input type="text" form="addValueForm" value="{{field.id}}">
+        </template>
+        <span><input type="submit" form="addValueForm"></span>
+      </form>
+    </div>
+  
+    <nav class="page-nav">
+      <ul class="pagination">
+        <li>
+          <a href="#" aria-label="Previous" id="prevPage">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      
+        <template repeat="{{count in pageCount}}">
+          <li><a href="#{{count}}">{{count}}</a></li>
+        </template>
+      
+        <li>
+          <a href="#" aria-label="Next" id="nextPage">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</template>
+<script src="../js/sort-table.js"></script>
+</polymer-element>
+
+
