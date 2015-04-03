@@ -15,7 +15,7 @@
             this.addValueForm = this.$.addValueForm;
             this.storeName = "";
             this.currentSort = {"sort?": false, "col": undefined, "ascDesc": undefined};
-            this.init('polymer-sort-table/sort-table-storage', 'data.json');
+            this.init('sort-table-storage', 'polymer-sort-table/data.json');
         },
 
         // Initialize object, load data, set view
